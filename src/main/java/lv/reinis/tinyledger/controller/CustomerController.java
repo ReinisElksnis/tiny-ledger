@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lv.reinis.tinyledger.dto.CreateCustomerRequest;
 import lv.reinis.tinyledger.dto.CustomerDto;
@@ -18,6 +20,7 @@ import lv.reinis.tinyledger.service.CustomerService;
 
 
 @RestController
+@Tag(name = "Customers", description = "Create and look up customers.")
 @RequestMapping("/api/v1/customers")
 public class CustomerController
 {
@@ -31,12 +34,14 @@ public class CustomerController
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
+	@Operation(summary = "Create a customer")
 	public CustomerDto create(@Valid @RequestBody final CreateCustomerRequest request)
 	{
 		return customerService.create(request.name());
 	}
 
 	@GetMapping("/{customerId}")
+	@Operation(summary = "Get a customer")
 	public CustomerDto get(@PathVariable final UUID customerId)
 	{
 		return customerService.get(customerId);

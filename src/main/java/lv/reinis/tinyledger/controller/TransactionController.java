@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lv.reinis.tinyledger.dto.TransactionDto;
 import lv.reinis.tinyledger.dto.TransactionRequest;
@@ -19,6 +21,7 @@ import lv.reinis.tinyledger.service.TransactionService;
 
 
 @RestController
+@Tag(name = "Transactions", description = "Deposits, withdrawals and transaction history of an account.")
 @RequestMapping("/api/v1/customers/{customerId}/accounts/{currency}/transactions")
 public class TransactionController
 {
@@ -32,6 +35,7 @@ public class TransactionController
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
+	@Operation(summary = "Deposit to or withdraw from an account")
 	public TransactionDto create(@PathVariable final UUID customerId, @PathVariable final String currency,
 			@Valid @RequestBody final TransactionRequest request)
 	{
@@ -43,6 +47,7 @@ public class TransactionController
 	}
 
 	@GetMapping
+	@Operation(summary = "List transactions, newest first")
 	public List<TransactionDto> history(@PathVariable final UUID customerId, @PathVariable final String currency)
 	{
 		return transactionService.history(customerId, currency);
