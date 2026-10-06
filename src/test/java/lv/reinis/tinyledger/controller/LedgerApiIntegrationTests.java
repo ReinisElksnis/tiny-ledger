@@ -104,6 +104,7 @@ class LedgerApiIntegrationTests
 				.andExpect(jsonPath("$[0].id").value(customerId))
 				.andExpect(jsonPath("$[0].accounts[*].currency", contains("EUR", "JPY")))
 				.andExpect(jsonPath("$[0].accounts[0].balance").value(100.50))
+				.andExpect(jsonPath("$[0].accounts[0].customerId").doesNotExist())
 				.andExpect(jsonPath("$[1].accounts", hasSize(0)));
 	}
 

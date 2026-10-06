@@ -1,7 +1,6 @@
 package lv.reinis.tinyledger.converter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -16,6 +15,7 @@ import lv.reinis.tinyledger.domain.Customer;
 import lv.reinis.tinyledger.domain.Transaction;
 import lv.reinis.tinyledger.domain.TransactionType;
 import lv.reinis.tinyledger.dto.AccountDto;
+import lv.reinis.tinyledger.dto.AccountSummaryDto;
 import lv.reinis.tinyledger.dto.CustomerAccountsDto;
 import lv.reinis.tinyledger.dto.CustomerDto;
 import lv.reinis.tinyledger.dto.TransactionDto;
@@ -66,13 +66,13 @@ class ConverterTests
 		final Customer customer = customer();
 		final Account euro = account("EUR", "100.500");
 
-		final CustomerAccountsDto dto = new CustomerAccountsConverter(new AccountConverter()).convert(customer, List.of(euro));
+		final CustomerAccountsDto dto = new CustomerAccountsConverter(new AccountSummaryConverter()).convert(customer, List.of(euro));
 
 		assertThat(dto.id()).isEqualTo(customer.getId());
 		assertThat(dto.name()).isEqualTo("Anna");
 		assertThat(dto.createdAt()).isEqualTo(CREATED_AT);
-		assertThat(dto.accounts()).extracting(AccountDto::currency, AccountDto::balance)
-				.containsExactly(tuple("EUR", new BigDecimal("100.50")));
+		assertThat(dto.accounts())
+				.containsExactly(new AccountSummaryDto(euro.getId(), "EUR", new BigDecimal("100.50"), CREATED_AT));
 	}
 
 	@Test

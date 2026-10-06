@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import lv.reinis.tinyledger.domain.Account;
 import lv.reinis.tinyledger.domain.Customer;
-import lv.reinis.tinyledger.dto.AccountDto;
+import lv.reinis.tinyledger.dto.AccountSummaryDto;
 import lv.reinis.tinyledger.dto.CustomerAccountsDto;
 
 
@@ -14,17 +14,17 @@ import lv.reinis.tinyledger.dto.CustomerAccountsDto;
 public class CustomerAccountsConverter
 {
 
-	private Converter<Account, AccountDto> accountConverter;
+	private Converter<Account, AccountSummaryDto> accountSummaryConverter;
 
-	public CustomerAccountsConverter(final Converter<Account, AccountDto> accountConverter)
+	public CustomerAccountsConverter(final Converter<Account, AccountSummaryDto> accountSummaryConverter)
 	{
-		this.accountConverter = accountConverter;
+		this.accountSummaryConverter = accountSummaryConverter;
 	}
 
 	public CustomerAccountsDto convert(final Customer customer, final List<Account> accounts)
 	{
 		return new CustomerAccountsDto(customer.getId(), customer.getName(), customer.getCreatedAt(),
-				accountConverter.convertAll(accounts));
+				accountSummaryConverter.convertAll(accounts));
 	}
 
 }

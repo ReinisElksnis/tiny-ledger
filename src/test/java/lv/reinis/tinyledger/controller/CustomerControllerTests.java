@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import lv.reinis.tinyledger.dto.AccountDto;
+import lv.reinis.tinyledger.dto.AccountSummaryDto;
 import lv.reinis.tinyledger.dto.CustomerAccountsDto;
 import lv.reinis.tinyledger.dto.CustomerDto;
 import lv.reinis.tinyledger.exception.CustomerException;
@@ -89,8 +89,8 @@ class CustomerControllerTests
 	void listReturnsCustomersWithAccounts() throws Exception
 	{
 		final UUID otherId = UUID.randomUUID();
-		final AccountDto euro = new AccountDto(UUID.randomUUID(), CUSTOMER_ID, "EUR", new BigDecimal("100.50"), Instant.now());
-		final AccountDto yen = new AccountDto(UUID.randomUUID(), CUSTOMER_ID, "JPY", new BigDecimal("1000"), Instant.now());
+		final AccountSummaryDto euro = new AccountSummaryDto(UUID.randomUUID(), "EUR", new BigDecimal("100.50"), Instant.now());
+		final AccountSummaryDto yen = new AccountSummaryDto(UUID.randomUUID(), "JPY", new BigDecimal("1000"), Instant.now());
 		when(customerService.listWithAccounts()).thenReturn(List.of(
 				new CustomerAccountsDto(CUSTOMER_ID, "Anna", Instant.now(), List.of(euro, yen)),
 				new CustomerAccountsDto(otherId, "Marta", Instant.now(), List.of())));
@@ -100,6 +100,7 @@ class CustomerControllerTests
 				.andExpect(jsonPath("$[*].name", contains("Anna", "Marta")))
 				.andExpect(jsonPath("$[0].id").value(CUSTOMER_ID.toString()))
 				.andExpect(jsonPath("$[0].accounts[*].currency", contains("EUR", "JPY")))
+				.andExpect(jsonPath("$[0].accounts[0].customerId").doesNotExist())
 				.andExpect(jsonPath("$[1].accounts", hasSize(0)));
 	}
 
