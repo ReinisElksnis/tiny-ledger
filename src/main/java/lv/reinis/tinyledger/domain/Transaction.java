@@ -54,7 +54,8 @@ public class Transaction
 	@Column(nullable = false)
 	private Instant createdAt;
 
-	Transaction(final Account account, final TransactionType type, final BigDecimal amount, final BigDecimal balanceAfter, final String description)
+	public Transaction(final Account account, final TransactionType type, final BigDecimal amount, final BigDecimal balanceAfter,
+			final String description)
 	{
 		this.account = account;
 		this.type = type;

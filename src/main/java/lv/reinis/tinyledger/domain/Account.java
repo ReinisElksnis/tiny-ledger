@@ -20,10 +20,12 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 @Entity
-@Table(name = "accounts", uniqueConstraints = @UniqueConstraint(name = "uq_accounts_customer_currency", columnNames = { "customer_id", "currency" }))
+@Table(name = "accounts", uniqueConstraints = @UniqueConstraint(name = "uq_accounts_customer_currency", columnNames = {
+		"customer_id", "currency" }))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Account
@@ -41,6 +43,7 @@ public class Account
 	@Column(nullable = false, length = 3)
 	private String currency;
 
+	@Setter
 	@Column(nullable = false, precision = 19, scale = 3)
 	private BigDecimal balance = BigDecimal.ZERO;
 
