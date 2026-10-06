@@ -49,7 +49,7 @@ class TransactionControllerTests
 	void setUp()
 	{
 		mockMvc = MockMvcBuilders.standaloneSetup(new TransactionController(transactionService))
-				.setControllerAdvice(new LedgerExceptionHandler()).build();
+				.setControllerAdvice(new GlobalExceptionHandler()).build();
 	}
 
 	@Test
@@ -83,10 +83,15 @@ class TransactionControllerTests
 	@Test
 	void missingOrUnknownTypeIsBadRequest() throws Exception
 	{
-		create("{\"amount\": 5}").andExpect(status().isBadRequest());
-		create("{\"type\": null, \"amount\": 5}").andExpect(status().isBadRequest());
-		create("{\"type\": \"TRANSFER\", \"amount\": 5}").andExpect(status().isBadRequest());
-		create("{\"type\": \"\", \"amount\": 5}").andExpect(status().isBadRequest());
+		create("{\"amount\": 5}").andExpect(status().isBadRequest()).andExpect(jsonPath("$.errors.type").isNotEmpty());
+		create("{\"type\": null, \"amount\": 5}").andExpect(status().isBadRequest()).andExpect(jsonPath("$.errors.type").isNotEmpty());
+		create("{\"type\": \"TRANSFER\", \"amount\": 5}").andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.detail").value("Validation failed"))
+				.andExpect(jsonPath("$.errors.type").value("must be one of DEPOSIT, WITHDRAWAL"));
+		create("{\"type\": \"deposit\", \"amount\": 5}").andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.errors.type").value("must be one of DEPOSIT, WITHDRAWAL"));
+		create("{\"type\": \"\", \"amount\": 5}").andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.errors.type").value("must be one of DEPOSIT, WITHDRAWAL"));
 
 		verifyNoInteractions(transactionService);
 	}
@@ -94,8 +99,12 @@ class TransactionControllerTests
 	@Test
 	void missingOrMalformedAmountIsBadRequest() throws Exception
 	{
-		create("{\"type\": \"DEPOSIT\"}").andExpect(status().isBadRequest());
-		create("{\"type\": \"DEPOSIT\", \"amount\": \"abc\"}").andExpect(status().isBadRequest());
+		create("{\"type\": \"DEPOSIT\"}").andExpect(status().isBadRequest()).andExpect(jsonPath("$.errors.amount").isNotEmpty());
+		create("{\"type\": \"DEPOSIT\", \"amount\": \"abc\"}").andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.errors.amount").value("has an invalid value"));
+		create("{}").andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.errors.type").isNotEmpty())
+				.andExpect(jsonPath("$.errors.amount").isNotEmpty());
 
 		verifyNoInteractions(transactionService);
 	}
@@ -103,7 +112,8 @@ class TransactionControllerTests
 	@Test
 	void tooLongDescriptionIsBadRequest() throws Exception
 	{
-		create("{\"type\": \"DEPOSIT\", \"amount\": 5, \"description\": \"" + "a".repeat(256) + "\"}").andExpect(status().isBadRequest());
+		create("{\"type\": \"DEPOSIT\", \"amount\": 5, \"description\": \"" + "a".repeat(256) + "\"}").andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.errors.description").isNotEmpty());
 
 		verifyNoInteractions(transactionService);
 	}

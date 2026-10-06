@@ -16,6 +16,8 @@ public interface AccountRepository extends JpaRepository<Account, UUID>
 
 	List<Account> findAllByCustomerIdOrderByCurrency(final UUID customerId);
 
+	List<Account> findAllByOrderByCurrency();
+
 	boolean existsByCustomerIdAndCurrency(final UUID customerId, final String currency);
 
 }

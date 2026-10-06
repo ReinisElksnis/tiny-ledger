@@ -45,7 +45,7 @@ class AccountControllerTests
 	void setUp()
 	{
 		mockMvc = MockMvcBuilders.standaloneSetup(new AccountController(accountService))
-				.setControllerAdvice(new LedgerExceptionHandler()).build();
+				.setControllerAdvice(new GlobalExceptionHandler()).build();
 	}
 
 	@Test
@@ -63,8 +63,10 @@ class AccountControllerTests
 	@Test
 	void missingCurrencyIsBadRequest() throws Exception
 	{
-		open("{}").andExpect(status().isBadRequest());
-		open("{\"currency\": \"\"}").andExpect(status().isBadRequest());
+		open("{}").andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.detail").value("Validation failed"))
+				.andExpect(jsonPath("$.errors.currency").isNotEmpty());
+		open("{\"currency\": \"\"}").andExpect(status().isBadRequest()).andExpect(jsonPath("$.errors.currency").isNotEmpty());
 
 		verifyNoInteractions(accountService);
 	}

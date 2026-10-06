@@ -123,6 +123,9 @@ Try it:
 BASE=http://localhost:8080/api/v1/customers
 ANNA=00000000-0000-7000-8000-000000000001
 
+# all customers with their accounts
+curl $BASE
+
 # accounts and balances
 curl $BASE/$ANNA/accounts
 

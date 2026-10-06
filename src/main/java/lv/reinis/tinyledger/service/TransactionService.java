@@ -55,7 +55,8 @@ public class TransactionService
 	}
 
 	@Transactional
-	public TransactionDto withdraw(final UUID customerId, final String currency, final BigDecimal amount, final String description)
+	public TransactionDto withdraw(final UUID customerId, final String currency, final BigDecimal amount,
+			final String description)
 	{
 		final Account account = findAccount(customerId, currency);
 		final Currency accountCurrency = Currency.getInstance(account.getCurrency());
@@ -108,7 +109,8 @@ public class TransactionService
 
 		if (amount.stripTrailingZeros().scale() > fractionDigits)
 		{
-			throw TransactionException.invalidAmount("%s amounts allow at most %d decimal places".formatted(currency, fractionDigits));
+			throw TransactionException.invalidAmount(
+					"%s amounts allow at most %d decimal places".formatted(currency, fractionDigits));
 		}
 	}
 

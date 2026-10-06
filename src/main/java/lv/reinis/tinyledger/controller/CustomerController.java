@@ -1,5 +1,6 @@
 package lv.reinis.tinyledger.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lv.reinis.tinyledger.dto.CreateCustomerRequest;
+import lv.reinis.tinyledger.dto.CustomerAccountsDto;
 import lv.reinis.tinyledger.dto.CustomerDto;
 import lv.reinis.tinyledger.service.CustomerService;
 
@@ -38,6 +40,13 @@ public class CustomerController
 	public CustomerDto create(@Valid @RequestBody final CreateCustomerRequest request)
 	{
 		return customerService.create(request.name());
+	}
+
+	@GetMapping
+	@Operation(summary = "List all customers with their accounts")
+	public List<CustomerAccountsDto> list()
+	{
+		return customerService.listWithAccounts();
 	}
 
 	@GetMapping("/{customerId}")

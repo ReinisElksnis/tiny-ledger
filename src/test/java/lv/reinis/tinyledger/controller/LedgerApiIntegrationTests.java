@@ -91,6 +91,23 @@ class LedgerApiIntegrationTests
 	}
 
 	@Test
+	void customersAreListedWithTheirAccounts() throws Exception
+	{
+		postJson("/api/v1/customers", "{\"name\": \"Marta\"}").andExpect(status().isCreated());
+		openAccount("JPY");
+		openAccount("EUR");
+		movement("{\"type\": \"DEPOSIT\", \"amount\": 100.5}");
+
+		mockMvc.perform(get("/api/v1/customers"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[*].name", contains("Anna", "Marta")))
+				.andExpect(jsonPath("$[0].id").value(customerId))
+				.andExpect(jsonPath("$[0].accounts[*].currency", contains("EUR", "JPY")))
+				.andExpect(jsonPath("$[0].accounts[0].balance").value(100.50))
+				.andExpect(jsonPath("$[1].accounts", hasSize(0)));
+	}
+
+	@Test
 	void duplicateAccountIsConflict() throws Exception
 	{
 		openAccount("EUR").andExpect(status().isCreated());
