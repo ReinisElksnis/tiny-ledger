@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.RequiredArgsConstructor;
 import lv.reinis.tinyledger.converter.Converter;
 import lv.reinis.tinyledger.domain.Customer;
 import lv.reinis.tinyledger.dto.CustomerDto;
@@ -14,13 +13,18 @@ import lv.reinis.tinyledger.repository.CustomerRepository;
 
 
 @Service
-@RequiredArgsConstructor
 public class CustomerService
 {
 
-	private final CustomerRepository customerRepository;
+	private CustomerRepository customerRepository;
 
-	private final Converter<Customer, CustomerDto> customerConverter;
+	private Converter<Customer, CustomerDto> customerConverter;
+
+	public CustomerService(final CustomerRepository customerRepository, final Converter<Customer, CustomerDto> customerConverter)
+	{
+		this.customerRepository = customerRepository;
+		this.customerConverter = customerConverter;
+	}
 
 	@Transactional
 	public CustomerDto create(final String name)

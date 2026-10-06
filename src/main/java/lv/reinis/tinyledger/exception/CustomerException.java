@@ -2,10 +2,7 @@ package lv.reinis.tinyledger.exception;
 
 import java.util.UUID;
 
-import lombok.Getter;
 
-
-@Getter
 public class CustomerException extends RuntimeException
 {
 
@@ -23,6 +20,11 @@ public class CustomerException extends RuntimeException
 	{
 		super(message);
 		this.reason = reason;
+	}
+
+	public Reason getReason()
+	{
+		return reason;
 	}
 
 	public static CustomerException customerNotFound(final UUID customerId)

@@ -1,0 +1,45 @@
+package lv.reinis.tinyledger.controller;
+
+import java.util.UUID;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
+import lv.reinis.tinyledger.dto.CreateCustomerRequest;
+import lv.reinis.tinyledger.dto.CustomerDto;
+import lv.reinis.tinyledger.service.CustomerService;
+
+
+@RestController
+@RequestMapping("/api/v1/customers")
+public class CustomerController
+{
+
+	private CustomerService customerService;
+
+	public CustomerController(final CustomerService customerService)
+	{
+		this.customerService = customerService;
+	}
+
+	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
+	public CustomerDto create(@Valid @RequestBody final CreateCustomerRequest request)
+	{
+		return customerService.create(request.name());
+	}
+
+	@GetMapping("/{customerId}")
+	public CustomerDto get(@PathVariable final UUID customerId)
+	{
+		return customerService.get(customerId);
+	}
+
+}

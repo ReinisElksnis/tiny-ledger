@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import lv.reinis.tinyledger.domain.Transaction;
 import lv.reinis.tinyledger.dto.TransactionDto;
+import lv.reinis.tinyledger.util.CurrencyUtils;
 
 
 @Component
@@ -13,8 +14,11 @@ public class TransactionConverter implements Converter<Transaction, TransactionD
 	@Override
 	public TransactionDto convert(final Transaction source)
 	{
-		return new TransactionDto(source.getId(), source.getAccount().getId(), source.getType(), source.getAmount(),
-				source.getBalanceAfter(), source.getDescription(), source.getCreatedAt());
+		final String currency = source.getAccount().getCurrency();
+
+		return new TransactionDto(source.getId(), source.getAccount().getId(), source.getType(),
+				CurrencyUtils.scale(source.getAmount(), currency), CurrencyUtils.scale(source.getBalanceAfter(), currency),
+				source.getDescription(), source.getCreatedAt());
 	}
 
 }

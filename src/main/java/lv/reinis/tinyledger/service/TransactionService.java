@@ -8,7 +8,6 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.RequiredArgsConstructor;
 import lv.reinis.tinyledger.converter.Converter;
 import lv.reinis.tinyledger.domain.Account;
 import lv.reinis.tinyledger.domain.Transaction;
@@ -18,20 +17,31 @@ import lv.reinis.tinyledger.exception.CustomerException;
 import lv.reinis.tinyledger.exception.TransactionException;
 import lv.reinis.tinyledger.repository.AccountRepository;
 import lv.reinis.tinyledger.repository.TransactionRepository;
+import lv.reinis.tinyledger.util.CurrencyUtils;
 
 
 @Service
-@RequiredArgsConstructor
 public class TransactionService
 {
 
-	private final TransactionRepository transactionRepository;
+	private TransactionRepository transactionRepository;
 
-	private final AccountRepository accountRepository;
+	private AccountRepository accountRepository;
 
-	private final CustomerService customerService;
+	private CustomerService customerService;
 
-	private final Converter<Transaction, TransactionDto> transactionConverter;
+	private Converter<Transaction, TransactionDto> transactionConverter;
+
+	public TransactionService(final TransactionRepository transactionRepository,
+			final AccountRepository accountRepository,
+			final CustomerService customerService,
+			final Converter<Transaction, TransactionDto> transactionConverter)
+	{
+		this.transactionRepository = transactionRepository;
+		this.accountRepository = accountRepository;
+		this.customerService = customerService;
+		this.transactionConverter = transactionConverter;
+	}
 
 	@Transactional
 	public TransactionDto deposit(final UUID customerId, final String currency, final BigDecimal amount, final String description)
@@ -94,7 +104,7 @@ public class TransactionService
 		{
 			throw TransactionException.invalidAmount("Amount must be greater than zero");
 		}
-		final int fractionDigits = currency.getDefaultFractionDigits();
+		final int fractionDigits = CurrencyUtils.fractionDigits(currency);
 
 		if (amount.stripTrailingZeros().scale() > fractionDigits)
 		{

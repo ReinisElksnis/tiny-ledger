@@ -8,7 +8,6 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lombok.RequiredArgsConstructor;
 import lv.reinis.tinyledger.converter.Converter;
 import lv.reinis.tinyledger.domain.Account;
 import lv.reinis.tinyledger.domain.Customer;
@@ -18,15 +17,23 @@ import lv.reinis.tinyledger.repository.AccountRepository;
 
 
 @Service
-@RequiredArgsConstructor
 public class AccountService
 {
 
-	private final AccountRepository accountRepository;
+	private AccountRepository accountRepository;
 
-	private final CustomerService customerService;
+	private CustomerService customerService;
 
-	private final Converter<Account, AccountDto> accountConverter;
+	private Converter<Account, AccountDto> accountConverter;
+
+	public AccountService(final AccountRepository accountRepository,
+			final CustomerService customerService,
+			final Converter<Account, AccountDto> accountConverter)
+	{
+		this.accountRepository = accountRepository;
+		this.customerService = customerService;
+		this.accountConverter = accountConverter;
+	}
 
 	@Transactional
 	public AccountDto openAccount(final UUID customerId, final String currency)

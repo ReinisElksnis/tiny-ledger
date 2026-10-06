@@ -2,10 +2,7 @@ package lv.reinis.tinyledger.exception;
 
 import java.math.BigDecimal;
 
-import lombok.Getter;
 
-
-@Getter
 public class TransactionException extends RuntimeException
 {
 
@@ -21,6 +18,11 @@ public class TransactionException extends RuntimeException
 	{
 		super(message);
 		this.reason = reason;
+	}
+
+	public Reason getReason()
+	{
+		return reason;
 	}
 
 	public static TransactionException invalidAmount(final String message)
