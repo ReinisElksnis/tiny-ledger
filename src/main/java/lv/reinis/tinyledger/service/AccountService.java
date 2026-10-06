@@ -1,8 +1,6 @@
 package lv.reinis.tinyledger.service;
 
-import java.util.Currency;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -14,6 +12,7 @@ import lv.reinis.tinyledger.domain.Customer;
 import lv.reinis.tinyledger.dto.AccountDto;
 import lv.reinis.tinyledger.exception.CustomerException;
 import lv.reinis.tinyledger.repository.AccountRepository;
+import lv.reinis.tinyledger.util.CurrencyUtils;
 
 
 @Service
@@ -39,7 +38,7 @@ public class AccountService
 	public AccountDto openAccount(final UUID customerId, final String currency)
 	{
 		final Customer customer = customerService.findCustomer(customerId);
-		final String currencyCode = parseCurrency(currency).getCurrencyCode();
+		final String currencyCode = CurrencyUtils.parseCurrency(currency).getCurrencyCode();
 
 		if (accountRepository.existsByCustomerIdAndCurrency(customerId, currencyCode))
 		{
@@ -67,22 +66,10 @@ public class AccountService
 	private Account findAccount(final UUID customerId, final String currency)
 	{
 		customerService.findCustomer(customerId);
-		final String currencyCode = parseCurrency(currency).getCurrencyCode();
+		final String currencyCode = CurrencyUtils.parseCurrency(currency).getCurrencyCode();
 
 		return accountRepository.findByCustomerIdAndCurrency(customerId, currencyCode)
 				.orElseThrow(() -> CustomerException.accountNotFound(customerId, currencyCode));
-	}
-
-	static Currency parseCurrency(final String currency)
-	{
-		try
-		{
-			return Currency.getInstance(currency.toUpperCase(Locale.ROOT));
-		}
-		catch (final IllegalArgumentException | NullPointerException e)
-		{
-			throw CustomerException.invalidCurrency(currency);
-		}
 	}
 
 }

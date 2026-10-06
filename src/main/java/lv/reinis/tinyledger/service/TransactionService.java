@@ -82,7 +82,7 @@ public class TransactionService
 	private Account findAccount(final UUID customerId, final String currency)
 	{
 		customerService.findCustomer(customerId);
-		final String currencyCode = AccountService.parseCurrency(currency).getCurrencyCode();
+		final String currencyCode = CurrencyUtils.parseCurrency(currency).getCurrencyCode();
 
 		return accountRepository.findByCustomerIdAndCurrency(customerId, currencyCode)
 				.orElseThrow(() -> CustomerException.accountNotFound(customerId, currencyCode));
