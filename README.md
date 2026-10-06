@@ -38,6 +38,7 @@ All paths are under `/api/v1`.
 | Method | Path | Description |
 |---|---|---|
 | `POST` | `/customers` | Create a customer |
+| `GET` | `/customers` | List all customers with their accounts |
 | `GET` | `/customers/{customerId}` | Get a customer |
 | `POST` | `/customers/{customerId}/accounts` | Open an account in a currency |
 | `GET` | `/customers/{customerId}/accounts` | List a customer's accounts |
@@ -70,17 +71,18 @@ Request bodies:
 ### Errors
 
 Errors are returned as [problem details](https://www.rfc-editor.org/rfc/rfc9457). Business errors carry an extra
-`reason` field.
+`reason` field; validation errors carry an `errors` object with one message per invalid field.
 
 | Status | Reason | When |
 |---|---|---|
 | 400 | `INVALID_CURRENCY` | The currency is not an ISO 4217 code |
 | 400 | `INVALID_AMOUNT` | The amount is not positive or has too many decimal places |
-| 400 | – | Request validation failed, malformed JSON or id, unknown transaction type |
+| 400 | – | Request validation failed (see `errors`), malformed JSON or id |
 | 404 | `CUSTOMER_NOT_FOUND` | The customer does not exist |
 | 404 | `ACCOUNT_NOT_FOUND` | The customer has no account in that currency |
 | 409 | `ACCOUNT_ALREADY_EXISTS` | The customer already has an account in that currency |
 | 422 | `INSUFFICIENT_FUNDS` | The withdrawal exceeds the balance |
+| 500 | – | Unexpected error; details are logged, not returned |
 
 ```json
 {
@@ -89,6 +91,19 @@ Errors are returned as [problem details](https://www.rfc-editor.org/rfc/rfc9457)
   "detail": "Cannot withdraw 500 EUR: balance is 100.500 EUR",
   "instance": "/api/v1/customers/00000000-0000-7000-8000-000000000001/accounts/EUR/transactions",
   "reason": "INSUFFICIENT_FUNDS"
+}
+```
+
+```json
+{
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed",
+  "instance": "/api/v1/customers/00000000-0000-7000-8000-000000000001/accounts/EUR/transactions",
+  "errors": {
+    "amount": "must not be null",
+    "type": "must not be null"
+  }
 }
 ```
 
@@ -164,4 +179,3 @@ src/main/resources/db
 - No authentication or authorisation.
 - No protection against concurrent updates of the same account: two simultaneous withdrawals could both pass the
   balance check.
-- Transaction history is not paginated.
