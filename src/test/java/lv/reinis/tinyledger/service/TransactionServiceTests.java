@@ -3,6 +3,7 @@ package lv.reinis.tinyledger.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -114,6 +115,22 @@ class TransactionServiceTests
 	}
 
 	@Test
+	void movementsLockTheAccountAndHistoryDoesNot()
+	{
+		givenAccount("EUR", "10");
+		givenTransactionIsSaved();
+
+		transactionService.deposit(CUSTOMER_ID, "EUR", new BigDecimal("1"), null);
+		transactionService.withdraw(CUSTOMER_ID, "EUR", new BigDecimal("1"), null);
+		verify(accountRepository, times(2)).findForUpdateByCustomerIdAndCurrency(CUSTOMER_ID, "EUR");
+		verify(accountRepository, never()).findByCustomerIdAndCurrency(CUSTOMER_ID, "EUR");
+
+		transactionService.history(CUSTOMER_ID, "EUR");
+		verify(accountRepository, times(2)).findForUpdateByCustomerIdAndCurrency(CUSTOMER_ID, "EUR");
+		verify(accountRepository).findByCustomerIdAndCurrency(CUSTOMER_ID, "EUR");
+	}
+
+	@Test
 	void missingOrNonPositiveAmountIsRejected()
 	{
 		final Account account = givenAccount("EUR", "5");
@@ -157,7 +174,7 @@ class TransactionServiceTests
 	@Test
 	void movementOnMissingAccountIsRejected()
 	{
-		when(accountRepository.findByCustomerIdAndCurrency(CUSTOMER_ID, "EUR")).thenReturn(Optional.empty());
+		when(accountRepository.findForUpdateByCustomerIdAndCurrency(CUSTOMER_ID, "EUR")).thenReturn(Optional.empty());
 
 		assertThatThrownBy(() -> transactionService.deposit(CUSTOMER_ID, "EUR", new BigDecimal("1"), null))
 				.isInstanceOf(CustomerException.class)
@@ -195,7 +212,10 @@ class TransactionServiceTests
 	{
 		final Account account = new Account(new Customer("Anna"), currency);
 		account.setBalance(new BigDecimal(balance));
-		when(accountRepository.findByCustomerIdAndCurrency(CUSTOMER_ID, currency)).thenReturn(Optional.of(account));
+		// Movements read the account with a lock, history without; each test uses only one of them.
+		lenient().when(accountRepository.findByCustomerIdAndCurrency(CUSTOMER_ID, currency)).thenReturn(Optional.of(account));
+		lenient().when(accountRepository.findForUpdateByCustomerIdAndCurrency(CUSTOMER_ID, currency))
+				.thenReturn(Optional.of(account));
 
 		return account;
 	}

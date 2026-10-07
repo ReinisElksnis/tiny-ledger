@@ -180,5 +180,6 @@ src/main/resources/db
 ## Limitations
 
 - No authentication or authorisation.
-- No protection against concurrent updates of the same account: two simultaneous withdrawals could both pass the
-  balance check.
+- No pagination.
+- No meaningful logging.
+- No performance tuning.

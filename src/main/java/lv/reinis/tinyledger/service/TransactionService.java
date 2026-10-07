@@ -46,7 +46,7 @@ public class TransactionService
 	@Transactional
 	public TransactionDto deposit(final UUID customerId, final String currency, final BigDecimal amount, final String description)
 	{
-		final Account account = findAccount(customerId, currency);
+		final Account account = findAccountForUpdate(customerId, currency);
 		validateAmount(amount, Currency.getInstance(account.getCurrency()));
 
 		final BigDecimal balanceAfter = account.getBalance().add(amount);
@@ -58,7 +58,7 @@ public class TransactionService
 	public TransactionDto withdraw(final UUID customerId, final String currency, final BigDecimal amount,
 			final String description)
 	{
-		final Account account = findAccount(customerId, currency);
+		final Account account = findAccountForUpdate(customerId, currency);
 		final Currency accountCurrency = Currency.getInstance(account.getCurrency());
 		validateAmount(amount, accountCurrency);
 
@@ -82,10 +82,17 @@ public class TransactionService
 
 	private Account findAccount(final UUID customerId, final String currency)
 	{
-		customerService.findCustomer(customerId);
 		final String currencyCode = CurrencyUtils.parseCurrency(currency).getCurrencyCode();
 
 		return accountRepository.findByCustomerIdAndCurrency(customerId, currencyCode)
+				.orElseThrow(() -> CustomerException.accountNotFound(customerId, currencyCode));
+	}
+
+	private Account findAccountForUpdate(final UUID customerId, final String currency)
+	{
+		final String currencyCode = CurrencyUtils.parseCurrency(currency).getCurrencyCode();
+
+		return accountRepository.findForUpdateByCustomerIdAndCurrency(customerId, currencyCode)
 				.orElseThrow(() -> CustomerException.accountNotFound(customerId, currencyCode));
 	}
 
